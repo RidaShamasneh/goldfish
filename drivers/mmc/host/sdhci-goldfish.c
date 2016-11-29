@@ -89,9 +89,16 @@ static void sdhci_goldfish_set_bus_width (struct sdhci_host *host, int width) {
 	printk("set_bus_width\n");  	
 }
 
+static unsigned int sdhci_goldfish_get_timeout_clock(struct sdhci_host *host) {
+	//TOOD: fill with right values
+	printk("sdhci_goldfish_get_timeout_clock\n");
+	return 0;
+}
+
 static struct sdhci_ops sdhci_goldfish_ops = {
 	.get_min_clock = sdhci_goldfish_get_min_clock,
 	.get_max_clock = sdhci_goldfish_get_max_clock,
+	.get_timeout_clock = sdhci_goldfish_get_timeout_clock,
 	.set_clock = sdhci_goldfish_set_clock,
 };
 
