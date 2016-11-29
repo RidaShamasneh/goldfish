@@ -159,6 +159,7 @@ static int goldfish_mmc_probe(struct platform_device *pdev)
 	//VERY Important in order to force "sdhci_do_get_cd" to return 1
 	host->quirks |= SDHCI_QUIRK_BROKEN_CARD_DETECTION;
 
+	host->hw_name = "sdhci";
 	host->ops = &sdhci_goldfish_ops;
 
 	//host->quirks2 |= SDHCI_QUIRK2_HOST_NO_CMD23;
