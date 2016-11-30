@@ -57,6 +57,8 @@
 #define SDHCI_QUIRKs			0x10C
 
 
+#define BUFFER_SIZE   16384
+
 //#define MMC_CAP2_CAN_DO_CMDQ	(1 << 26)
 //#define MMC_CAP2_HYBRID_MODE	(1 << 27)	/* Support Hybrid mode */
 
@@ -158,6 +160,8 @@ static int goldfish_mmc_probe(struct platform_device *pdev)
 
 	//VERY Important in order to force "sdhci_do_get_cd" to return 1
 	host->quirks |= SDHCI_QUIRK_BROKEN_CARD_DETECTION;
+	//host->quirks |= SDHCI_QUIRK_BROKEN_DMA;
+	//host->quirks |= SDHCI_QUIRK_BROKEN_ADMA;
 
 	host->hw_name = "sdhci";
 	host->ops = &sdhci_goldfish_ops;
@@ -166,7 +170,7 @@ static int goldfish_mmc_probe(struct platform_device *pdev)
 
 	ret = sdhci_add_host(host);
 
-	printk("sdhci-goldfish driver configuration after adding sdhci host:\n");
+	/*printk("sdhci-goldfish driver configuration after adding sdhci host:\n");
 	printk("mmc->caps:  %X\n", mmc->caps);
 	printk("mmc->caps2: %X\n", mmc->caps2);
 	printk("buffer_size %u\n\n", mmc->max_req_size);
@@ -174,13 +178,18 @@ static int goldfish_mmc_probe(struct platform_device *pdev)
 	sdhci_writel(host, mmc->caps, SDHCI_CAPS);
 	sdhci_writel(host, mmc->caps2, SDHCI_CAPS2);
 	mmc->caps = sdhci_readl(host, SDHCI_CAPS);
-	mmc->caps2 = sdhci_readl(host, SDHCI_CAPS2);
-	mmc->max_req_size = sdhci_readl(host, SDHCI_BUFFER_SIZE);
+	mmc->caps2 = sdhci_readl(host, SDHCI_CAPS2);*/
+
+	mmc->max_segs = 32;
+	mmc->max_blk_size = 2048;	/* MMC_BLOCK_LENGTH is 11 bits (+1) */
+	mmc->max_blk_count = 2048;	/* MMC_BLOCK_COUNT is 11 bits (+1) */
+	mmc->max_req_size = BUFFER_SIZE;
+	mmc->max_seg_size = mmc->max_req_size;
 	
-	printk("The modified sdhci-goldfish driver configuration:\n");
+	/*printk("The modified sdhci-goldfish driver configuration:\n");
 	printk("mmc->caps:  %X\n", mmc->caps);
 	printk("mmc->caps2: %X\n", mmc->caps2);
-	printk("buffer_size %u\n\n", mmc->max_req_size);
+	printk("buffer_size %u\n\n", mmc->max_req_size);*/
 
 
 	return ret;
