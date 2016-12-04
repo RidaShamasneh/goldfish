@@ -226,8 +226,25 @@ static void goldfish_mmc_xfer_done(struct goldfish_mmc_host *host,
 			memcpy(dest, host->virt_base, data->sg->length);
 		}
 		host->data->bytes_xfered += data->sg->length;
-		dma_unmap_sg(mmc_dev(host->mmc), data->sg, host->sg_len,
-			     dma_data_dir);
+		//TODO: Investigate later
+		//dma_unmap_sg(mmc_dev(host->mmc), data->sg, host->sg_len,
+		//	     dma_data_dir);
+
+		//Calling "dma_unmap_sg" function here affects "cmd->mrq->data->sg" scatter-gather list, which is part of the mmc_request
+		//cmd->mrq->data->sg inside "goldfish_mmc_cmd_done" will be filled with 0s!!!
+		//Such behaviour affects the upper layer waiting for data --> "i.e. drivers/mmc/core/core.c : mmc_request_done(..)"
+		
+		
+		//Another way to fix this is to do the following code to goldfish_mmc_cmd_done(..)
+		/*
+		@@ -282,7 +296,24 @@ static void goldfish_mmc_cmd_done(struct goldfish_mmc_host *host,
+		 	if (host->data == NULL || cmd->error) {
+		+		//Note that this fixes the issue for mmc command 18 (Multiple read)
+		+		if(cmd->mrq->cmd->opcode == 18) {
+		+			uint8_t *dest = (uint8_t *)sg_virt(cmd->mrq->data->sg);
+		+			memcpy(dest, host->virt_base, cmd->mrq->data->sg->length);
+		+		}
+		*/
 	}
 
 	host->data = NULL;
