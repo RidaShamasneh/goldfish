@@ -558,11 +558,18 @@ static int goldfish_mmc_remove(struct platform_device *pdev)
 	return 0;
 }
 
+static const struct of_device_id goldfish_mmc_of_match[] = {
+	{ .compatible = "generic,goldfish-mmc", },
+	{},
+};
+MODULE_DEVICE_TABLE(of, goldfish_mmc_of_match);
+
 static struct platform_driver goldfish_mmc_driver = {
 	.probe		= goldfish_mmc_probe,
 	.remove		= goldfish_mmc_remove,
 	.driver		= {
 		.name	= DRIVER_NAME,
+		.of_match_table = goldfish_mmc_of_match, //Added for dt tree of ranchu board
 	},
 };
 
