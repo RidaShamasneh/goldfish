@@ -227,8 +227,8 @@ static void goldfish_mmc_xfer_done(struct goldfish_mmc_host *host,
 		}
 		host->data->bytes_xfered += data->sg->length;
 		//TODO: Investigate later
-		//dma_unmap_sg(mmc_dev(host->mmc), data->sg, host->sg_len,
-		//	     dma_data_dir);
+		dma_unmap_sg(mmc_dev(host->mmc), data->sg, host->sg_len,
+			     dma_data_dir);
 
 		//Calling "dma_unmap_sg" function here affects "cmd->mrq->data->sg" scatter-gather list, which is part of the mmc_request
 		//cmd->mrq->data->sg inside "goldfish_mmc_cmd_done" will be filled with 0s!!!
@@ -299,6 +299,10 @@ static void goldfish_mmc_cmd_done(struct goldfish_mmc_host *host,
 	}
 
 	if (host->data == NULL || cmd->error) {
+		if(cmd->mrq->cmd->opcode == 18 || cmd->mrq->cmd->opcode == 17) {
+			uint8_t *dest = (uint8_t *)sg_virt(cmd->mrq->data->sg);
+			memcpy(dest, host->virt_base, cmd->mrq->data->sg->length);
+		}
 		host->mrq = NULL;
 		mmc_request_done(host->mmc, cmd->mrq);
 	}
