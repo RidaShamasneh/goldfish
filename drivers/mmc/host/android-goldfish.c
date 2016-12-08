@@ -12,7 +12,7 @@
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation.
  */
-
+static void do_smth ();
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/major.h>
@@ -431,16 +431,25 @@ static void goldfish_mmc_prepare_data(struct goldfish_mmc_host *host,
 	}
 }
 
+static void do_smth ()
+{
+	printk(" ");	
+}
+
 static void goldfish_mmc_request(struct mmc_host *mmc, struct mmc_request *req)
 {
 	struct goldfish_mmc_host *host = mmc_priv(mmc);
+	
+	GOLDFISH_MMC_WRITE(host, 0x34, 0); //rida
+	do_smth ();
+	GOLDFISH_MMC_WRITE(host, 0x38, 0); //rida
 
 	WARN_ON(host->mrq != NULL);
-
 	host->mrq = req;
 	goldfish_mmc_prepare_data(host, req);
 	goldfish_mmc_start_command(host, req->cmd);
 
+	
 	/*
 	 * This is to avoid accidentally being detected as an SDIO card
 	 * in mmc_attach_sdio().
